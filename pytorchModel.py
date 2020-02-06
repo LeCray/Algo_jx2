@@ -8,20 +8,19 @@ import sklearn
 from numpy import loadtxt
 
 dataset = loadtxt('Data/BuyData.csv', delimiter=',') #10357
+PATH = "./"
 
 row_count = sum(1 for row in dataset)
 
 trainingData = dataset[0:round(row_count*0.7),:]
 testingData = dataset[round(row_count*0.7):row_count,:]
 
-X = trainingData[0,0:4]
-#print("Numpy: ", X)
+X = trainingData[:,0:4]
 y = trainingData[:,4]
 A = testingData[:,0:4]
 b = testingData[:,4]
 
 X = torch.from_numpy(X).type(torch.FloatTensor)
-#print("Tensor: ", X)
 y = torch.from_numpy(y).type(torch.LongTensor)
 
 A = torch.from_numpy(A).type(torch.FloatTensor)
@@ -63,7 +62,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 #Number of epochs
-epochs = 5000 #This was 50,000
+epochs = 100
 #List to store losses
 losses = []
 for i in range(epochs):
@@ -79,12 +78,16 @@ for i in range(epochs):
     loss.backward()
     #Adjust weights
     optimizer.step()
-
-    print("Step:",i, "| Loss:", loss.item())
+    print("Step:",i)
 
 
 from sklearn.metrics import accuracy_score
 print("Accuracy Score: ", accuracy_score(model.predict(A),b))
+
+print("Saving model...")
+torch.save(model.state_dict(), './model.pth')
+print("Model saved")
+
 
 
 def predict(x):
